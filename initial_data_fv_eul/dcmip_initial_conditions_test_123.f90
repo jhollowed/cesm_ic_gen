@@ -1124,7 +1124,7 @@ END SUBROUTINE test3_gravity_wave_new
       real(r8),parameter :: u0      = 20.d0,                          &   ! 20 m/s
                             T0      = 288.d0,                         &   !  temperature
                             N2      = g*g/(cp*T0),                    &   !  squared Brunt Vaisala frequency N^2
-                            h0      = 2000.d0,                        &   !  amplitude of the mountain, 2km
+                            h0      = 6000.d0,                        &   !  amplitude of the mountain, 2km
                             h1      = 4000.d0,                        &   !  amplitude of the mountain, 4km
                             d       = 1500.d3,                        &   !  half width 1500 km, single peak
                             d0      = 500.d3,                         &   !  half width 500 km, peak 1
