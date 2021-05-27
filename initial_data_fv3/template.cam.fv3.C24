@@ -99,10 +99,6 @@ variables:
 		TT_LW:long_name = "Q1 Tracer" ;
 	double TT_MD(time, lev, ncol) ;
 		TT_MD:long_name = "Q2 Tracer" ;
-	double TT_HI(time, lev, ncol) ;
-		TT_HI:long_name = "Q3 Tracer" ;
-	double TTRMD(time, lev, ncol) ;
-		TTRMD:long_name = "Q4 Tracer" ;
 
 // global attributes:
 		:cell = 1 ;
