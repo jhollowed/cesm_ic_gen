@@ -162,18 +162,22 @@ contains
         enddo 
         write (2,155) (output_1D(ii), ii=nlayer-3,nlayer)
       else
+        !JJJJ
+        !write (2,*) 'PS = '
+        !do i = 1, (nlayer-2)/4
+        !   write (2,150) (ps(ii,1), ii=(i-1)*4+1,i*4)
+        !enddo
+        !write (2,170) (ps(ii,1), ii=nlayer-1,nlayer)
+       
+        !JJJJ 
         write (2,*) 'PS = '
-        do i = 1, (nlayer-2)/4
-           write (2,150) (ps(ii,1), ii=(i-1)*4+1,i*4)
+        do i = 1, (nlayer-1)
+           write (2,175) (ps(ii,1), ii=i,i)
         enddo
-        write (2,170) (ps(ii,1), ii=nlayer-1,nlayer)
+        write (2,180) (ps(ii,1), ii=nlayer,nlayer)
+
         end if
  
-   !   write (2,*) 'PS = '
-   !   do i = 1, nlayer/8 - 1
-   !      write (2,160) (p0, j=1,8)
-   !   enddo
-   !   write (2,165) (p0, j=1,8)
 !=======================================================================
 !     TS Surface temperature
 !=======================================================================
@@ -429,11 +433,19 @@ contains
           enddo
           write (2,155) (output_1D(ii), ii=nlayer-3,nlayer)
       else
+          !JJJJ
+          !write (2,*) 'PHIS = '
+          !do i = 1, (nlayer-2)/4 
+          !   write (2,150) (phis(ii,1), ii=(i-1)*4+1,i*4)
+          !enddo
+          !write (2,170) (phis(ii,1), ii=nlayer-1,nlayer)
+          
+          !JJJJ
           write (2,*) 'PHIS = '
-          do i = 1, (nlayer-2)/4 
-             write (2,150) (phis(ii,1), ii=(i-1)*4+1,i*4)
+          do i = 1, nlayer-1
+             write (2,175) (phis(ii,1), ii=i,i)
           enddo
-          write (2,170) (phis(ii,1), ii=nlayer-1,nlayer)
+          write (2,180) (phis(ii,1), ii=nlayer,nlayer)
       endif
 !=======================================================================
 !     close file
@@ -456,6 +468,8 @@ contains
   160 format ('  ', 8(e6.1,', '))
   165 format ('  ', 7(e6.1,', '),e6.1,'; ',/)
   170 format ('  ', 1(e22.15,', '),e22.15,'; ',/)
+  175 format ('  ',e22.15,', ')
+  180 format ('  ',e22.15,'; ')
 
   end subroutine write_to_file
 

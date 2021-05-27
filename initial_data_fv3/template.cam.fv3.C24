@@ -1,19 +1,19 @@
 netcdf template.cam.fv3.C24 {
 dimensions:
-	ncol_d = 3456 ;
+	ncol = 3456 ;
 	time = UNLIMITED ; // (1 currently)
 	nbnd = 2 ;
 	chars = 8 ;
 	lev = 70 ;
 	ilev = 71 ;
 variables:
-	double lat_d(ncol_d) ;
+	double lat_d(ncol) ;
 		lat_d:long_name = "latitude" ;
 		lat_d:units = "degrees_north" ;
-	double lon_d(ncol_d) ;
+	double lon_d(ncol) ;
 		lon_d:long_name = "longitude" ;
 		lon_d:units = "degrees_east" ;
-	double area_d(ncol_d) ;
+	double area_d(ncol) ;
 		area_d:long_name = "FFSLHIST grid areas" ;
 	double lev(lev) ;
 		lev:long_name = "hybrid level at midpoints (1000*(A+B))" ;
@@ -68,29 +68,41 @@ variables:
 		nscur:long_name = "current seconds of current day" ;
 	int nsteph(time) ;
 		nsteph:long_name = "current timestep" ;
-	double PHIS(time, ncol_d) ;
+	double PHIS(time, ncol) ;
 		PHIS:units = "Pa" ;
 		PHIS:long_name = "PHIS on ffsl grid" ;
-	double PS(time, ncol_d) ;
+	double PS(time, ncol) ;
 		PS:units = "Pa" ;
 		PS:long_name = "Surface pressure" ;
-	double Q(time, lev, ncol_d) ;
+	double TS(time, ncol) ;
+		TS:mdims = 1 ;
+		TS:units = "K" ;
+		TS:long_name = "Surface Temperature" ;
+	double T(time, lev, ncol) ;
+		T:mdims = 1 ;
+		T:units = "K" ;
+		T:long_name = "Temperature" ;
+	double Q(time, lev, ncol) ;
 		Q:mdims = 1 ;
 		Q:units = "kg/kg" ;
 		Q:mixing_ratio = "wet" ;
 		Q:long_name = "Specific humidity" ;
-	double T(time, lev, ncol_d) ;
-		T:mdims = 1 ;
-		T:units = "K" ;
-		T:long_name = "Temperature" ;
-	double U(time, lev, ncol_d) ;
+	double U(time, lev, ncol) ;
 		U:mdims = 1 ;
 		U:units = "m/s" ;
 		U:long_name = "Zonal wind" ;
-	double V(time, lev, ncol_d) ;
+	double V(time, lev, ncol) ;
 		V:mdims = 1 ;
 		V:units = "m/s" ;
 		V:long_name = "Meridional wind" ;
+	double TT_LW(time, lev, ncol) ;
+		TT_LW:long_name = "Q1 Tracer" ;
+	double TT_MD(time, lev, ncol) ;
+		TT_MD:long_name = "Q2 Tracer" ;
+	double TT_HI(time, lev, ncol) ;
+		TT_HI:long_name = "Q3 Tracer" ;
+	double TTRMD(time, lev, ncol) ;
+		TTRMD:long_name = "Q4 Tracer" ;
 
 // global attributes:
 		:cell = 1 ;
