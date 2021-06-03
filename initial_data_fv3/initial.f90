@@ -61,13 +61,13 @@
 !     choose model version
 !-----------------------------------------------------------------------
   5   write (*,*) 'Choose a CESM dynamical core:'
-!      write (*,*) '(1) Eulerian / Semi-Lagrangian'
-!      write (*,*) '(2) Finite volume model'
-!      write (*,*) '(3) Spectral Element'
-!      write (*,*)
-!      write (*,*) 'Choose model version:'
-!      read  (*,*) model_version
-      model_version = 4
+      write (*,*) '(1) Eulerian / Semi-Lagrangian'
+      write (*,*) '(2) Finite volume model'
+      write (*,*) '(3) Spectral Element'
+      write (*,*) '(4) FV3 Cubed Sphere model'
+      write (*,*)
+      write (*,*) 'Choose model version:'
+      read  (*,*) model_version
       select case (model_version)
       case (1)
          model = 'eul_sl'

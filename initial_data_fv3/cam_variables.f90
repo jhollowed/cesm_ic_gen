@@ -104,8 +104,8 @@ contains
       !  the resolutions correspond to the spectral resolutions T...
       !-----------------------------------------------------------------------
       if (model_version == 1) then
-        open (1, file='template.T'//resol//'.L'//trim(c_level)//'.cam1.'//        &
-             trim(model))
+        open (1, file='templates/spectral/template.T'//resol//'.L'//trim(c_level)//  &
+                      '.cam1.'//trim(model))
         open (2, file='initial_data.cam.T'//resol//'.L'//trim(c_level)//'.'//  &
              trim(model)//'.nc.data')
       
@@ -114,7 +114,7 @@ contains
       !       the resolution is arbitrary (FV only)
       !----------------------------------------------------------------------- 
       else if (model_version == 2) then
-        open (1, file='template.'//trim(cnx)//'x'//trim(cny)//'.L'//   &
+        open (1, file='templates/latlon/template.'//trim(cnx)//'x'//trim(cny)//'.L'//  &
              trim(c_level)//'.cam1.'//trim(model))
         open (2, file='initial_data.cam.'//trim(cnx)//'x'//trim(cny)//'.L'//trim(c_level)//'.'// &
              trim(model)//'.nc.data')
@@ -123,9 +123,10 @@ contains
       !       SE
       !----------------------------------------------------------------------- 
       else if (model_version == 3) then
-        open (1, file='template.'//cn//'.L'//   &
-             trim(c_level)//'.cam1.'//trim(model))
-        open (2, file='initial_data.cam.'//trim(model)//'.ne'//cn//'L'//trim(c_level)//'.'// &
+        open (1, file='templates/homme/template.cam1.'//trim(model)//'.ne'//trim(cn))
+        open (3, file='templates/vertical/template.cam.L'//trim(c_level))
+        open (2, file='initial_data.cam.'//trim(model)//'.ne'//trim(cn)//&
+              '.L'//trim(c_level)//'.'//&
               trim(tc_nr)//'.'//trim(tc_name)//'.nc.data') 
       
       !-----------------------------------------------------------------------
@@ -133,8 +134,8 @@ contains
       !----------------------------------------------------------------------- 
       else if (model_version == 4) then
         ! horizontal, vertical templates
-        open (1, file='template.cam.'//trim(model)//'.C'//trim(cn))
-        open (3, file='template.cam.L'//trim(c_level))
+        open (1, file='templates/cubedsphere/template.cam.'//trim(model)//'.C'//trim(cn))
+        open (3, file='templates/vertical/template.cam.L'//trim(c_level))
         open (2, file='initial_data.cam.'//trim(model)//'.C'//trim(cn)//'.L'//trim(c_level)//'.'// &
               trim(tc_nr)//'.'//trim(tc_name)//'.nc.data') 
       endif
@@ -155,7 +156,7 @@ contains
       !     PS surface pressure
       !=======================================================================
       if (model_version.eq.1 .or.model_version.eq.2) then
-        call concatenate_2D (ps, nlat, output_1D, nlayer)
+        call concatenate_2D1 (ps, nlat, output_1D, nlayer)
         write (2,*) 'PS = '
         do i = 1, nlayer/4 - 1
            write (2,150) (output_1D(ii), ii=(i-1)*4+1,i*4)
@@ -178,17 +179,20 @@ contains
 
         end if
  
-!=======================================================================
-!     TS Surface temperature
-!=======================================================================
-      write (2,*) 'TS = '
-      do i = 1, nlayer/8 - 1
-         write (2,130) (ts, j=1,8)
-      enddo
-      write (2,135) (ts, j=1,8)
-!=======================================================================
-!     Q specific humidity
-!=======================================================================
+      !=======================================================================
+      !     TS Surface temperature
+      !=======================================================================
+      if (choice_testcase .eq. 11) then
+        write (2,*) 'TS = '
+        do i = 1, nlayer/8 - 1
+           write (2,130) (ts, j=1,8)
+        enddo
+        write (2,135) (ts, j=1,8)
+      endif
+
+      !=======================================================================
+      !     Q specific humidity
+      !=======================================================================
       if (model_version.eq.1 .or.model_version.eq.2) then
           call concatenate (q, nlat, output_1D, ntotal)
           write (2,*) 'Q = '
@@ -196,15 +200,8 @@ contains
              write(2,140) (output_1D(ii), ii=(i-1)*4+1,i*4)
           enddo
           write (2,145) (output_1D(ii), ii=ntotal-3,ntotal)
-      else if(model_version.eq.3) then
-          call concatenate_2DHOMME (q, output_1D, ntotal)
-          write (2,*) 'Q = '
-          do i = 1, ntotal/4 - 1
-             write(2,140) (output_1D(ii), ii=(i-1)*4+1,i*4)
-          enddo
-          write (2,145) (output_1D(ii), ii=ntotal-3,ntotal)
-      else if(model_version.eq.4) then
-          call concatenate_2DCUBEDSPHERE (q, output_1D, ntotal)
+      else if(model_version.eq.3 .or.model_version.eq.4) then
+          call concatenate_2D2 (q, output_1D, ntotal)
           write (2,*) 'Q = '
           do i = 1, ntotal/4 - 1
              write(2,140) (output_1D(ii), ii=(i-1)*4+1,i*4)
@@ -212,10 +209,12 @@ contains
           write (2,145) (output_1D(ii), ii=ntotal-3,ntotal)
       endif
 
-!=======================================================================
-!     Q1 Tracer (TT_LW)
-!=======================================================================
-      if (choice_testcase .ne. 200) then
+      !=======================================================================
+      !     Q1 Tracer (TT_LW)
+      !=======================================================================
+      if (choice_testcase .eq. 11) then
+      !JJJJ
+      !if (choice_testcase .ne. 200) then
       if (model_version.eq.1 .or.model_version.eq.2) then
           call concatenate (q1, nlat, output_1D, ntotal)
           write (2,*) 'TT_LW = '
@@ -223,15 +222,8 @@ contains
              write(2,140) (output_1D(ii), ii=(i-1)*4+1,i*4)
           enddo
           write (2,145) (output_1D(ii), ii=ntotal-3,ntotal)
-      else if(model_version.eq.3) then
-          call concatenate_2DHOMME (q1, output_1D, ntotal)
-          write (2,*) 'TT_LW = '
-          do i = 1, ntotal/4 - 1
-             write(2,140) (output_1D(ii), ii=(i-1)*4+1,i*4)
-          enddo
-          write (2,145) (output_1D(ii), ii=ntotal-3,ntotal)
-      else if(model_version.eq.4) then
-          call concatenate_2DCUBEDSPHERE (q1, output_1D, ntotal)
+      else if(model_version.eq.3 .or.model_version.eq.4) then
+          call concatenate_2D2 (q1, output_1D, ntotal)
           write (2,*) 'TT_LW = '
           do i = 1, ntotal/4 - 1
              write(2,140) (output_1D(ii), ii=(i-1)*4+1,i*4)
@@ -239,10 +231,13 @@ contains
           write (2,145) (output_1D(ii), ii=ntotal-3,ntotal)
       endif
       endif
-!=======================================================================
-!     Q2 Tracer (TT_MD)
-!=======================================================================
-      if (choice_testcase .ne. 200) then
+      
+      !=======================================================================
+      !     Q2 Tracer (TT_MD)
+      !=======================================================================
+      if (choice_testcase .eq. 11) then
+      !JJJJ
+      !if (choice_testcase .ne. 200) then
       if (model_version.eq.1 .or.model_version.eq.2) then
           call concatenate (q2, nlat, output_1D, ntotal)
           write (2,*) 'TT_MD = '
@@ -250,15 +245,8 @@ contains
              write(2,140) (output_1D(ii), ii=(i-1)*4+1,i*4)
           enddo
           write (2,145) (output_1D(ii), ii=ntotal-3,ntotal)
-      else if(model_version.eq.3) then
-          call concatenate_2DHOMME (q2, output_1D, ntotal)
-          write (2,*) 'TT_MD = '
-          do i = 1, ntotal/4 - 1
-             write(2,140) (output_1D(ii), ii=(i-1)*4+1,i*4)
-          enddo
-          write (2,145) (output_1D(ii), ii=ntotal-3,ntotal)
-      else if(model_version.eq.4) then
-          call concatenate_2DCUBEDSPHERE (q2, output_1D, ntotal)
+      else if(model_version.eq.3 .or.model_version.eq.4) then
+          call concatenate_2D2 (q2, output_1D, ntotal)
           write (2,*) 'TT_MD = '
           do i = 1, ntotal/4 - 1
              write(2,140) (output_1D(ii), ii=(i-1)*4+1,i*4)
@@ -266,9 +254,10 @@ contains
           write (2,145) (output_1D(ii), ii=ntotal-3,ntotal)
       endif
       endif
-!=======================================================================
-!     Q3 Tracer (TT_HI)
-!=======================================================================
+      
+      !=======================================================================
+      !     Q3 Tracer (TT_HI)
+      !=======================================================================
       if (choice_testcase .eq. 11) then
       if (model_version.eq.1 .or.model_version.eq.2) then
           call concatenate (q3, nlat, output_1D, ntotal)
@@ -277,15 +266,8 @@ contains
              write(2,140) (output_1D(ii), ii=(i-1)*4+1,i*4)
           enddo
           write (2,145) (output_1D(ii), ii=ntotal-3,ntotal)
-      else if(model_version.eq.3) then
-          call concatenate_2DHOMME (q3, output_1D, ntotal)
-          write (2,*) 'TT_HI = '
-          do i = 1, ntotal/4 - 1
-             write(2,140) (output_1D(ii), ii=(i-1)*4+1,i*4)
-          enddo
-          write (2,145) (output_1D(ii), ii=ntotal-3,ntotal)
-      else if(model_version.eq.4) then
-          call concatenate_2DCUBEDSPHERE (q3, output_1D, ntotal)
+      else if(model_version.eq.3 .or.model_version.eq.4) then
+          call concatenate_2D2 (q3, output_1D, ntotal)
           write (2,*) 'TT_HI = '
           do i = 1, ntotal/4 - 1
              write(2,140) (output_1D(ii), ii=(i-1)*4+1,i*4)
@@ -293,9 +275,10 @@ contains
           write (2,145) (output_1D(ii), ii=ntotal-3,ntotal)
       endif
       endif
-!=======================================================================
-!     Q4 Tracer (TTRMD)
-!=======================================================================
+      
+      !=======================================================================
+      !     Q4 Tracer (TTRMD)
+      !=======================================================================
       if (choice_testcase .eq. 11) then
       if (model_version.eq.1 .or.model_version.eq.2) then
           call concatenate (q4, nlat, output_1D, ntotal)
@@ -304,15 +287,8 @@ contains
              write(2,140) (output_1D(ii), ii=(i-1)*4+1,i*4)
           enddo
           write (2,145) (output_1D(ii), ii=ntotal-3,ntotal)
-      else if(model_version.eq.3) then
-          call concatenate_2DHOMME (q4, output_1D, ntotal)
-          write (2,*) 'TTRMD = '
-          do i = 1, ntotal/4 - 1
-             write(2,140) (output_1D(ii), ii=(i-1)*4+1,i*4)
-          enddo
-          write (2,145) (output_1D(ii), ii=ntotal-3,ntotal)
-      else if(model_version.eq.4) then
-          call concatenate_2DCUBEDSPHERE (q4, output_1D, ntotal)
+      else if(model_version.eq.3 .or.model_version.eq.4) then
+          call concatenate_2D2 (q4, output_1D, ntotal)
           write (2,*) 'TTRMD = '
           do i = 1, ntotal/4 - 1
              write(2,140) (output_1D(ii), ii=(i-1)*4+1,i*4)
@@ -320,9 +296,10 @@ contains
           write (2,145) (output_1D(ii), ii=ntotal-3,ntotal)
       endif
       endif
-!=======================================================================
-!     U zonal velocity
-!=======================================================================
+      
+      !=======================================================================
+      !     U zonal velocity
+      !=======================================================================
       if (model_version.eq.1) then
           call concatenate (u, nlat, output_1D, ntotal)
           write (2,*) 'U = '
@@ -340,15 +317,11 @@ contains
              write (2,140) (output_1Ds(ii), ii=(i-1)*4+1,i*4 )
           enddo
           write (2,145) (output_1Ds(ii), ii=nstotal-3,nstotal)
-      else if(model_version.eq.3) then
-          call concatenate_2DHOMME (u, output_1D, ntotal)
-          write (2,*) 'U = '
-          do i = 1, ntotal/4 - 1
-             write(2,140) (output_1D(ii), ii=(i-1)*4+1,i*4)
-          enddo
-          write (2,145) (output_1D(ii), ii=ntotal-3,ntotal)
-      else if(model_version.eq.4) then
-          call concatenate_2DCUBEDSPHERE (u, output_1D, ntotal)
+      else if(model_version.eq.3 .or.model_version.eq.4) then
+          !=======================================================================
+          !     U meridional velocity (HOMME, CUBEDSPHERE)
+          !=======================================================================
+          call concatenate_2D2 (u, output_1D, ntotal)
           write (2,*) 'U = '
           do i = 1, ntotal/4 - 1
              write(2,140) (output_1D(ii), ii=(i-1)*4+1,i*4)
@@ -356,10 +329,10 @@ contains
           write (2,145) (output_1D(ii), ii=ntotal-3,ntotal)
       endif
 
+      !=======================================================================
+      !     V meridional velocity
+      !=======================================================================
       if (model_version.eq.1) then
-!=======================================================================
-!     V meridional velocity
-!=======================================================================
           call concatenate (v, nlat, output_1D, ntotal)
           write (2,*) 'V = '
           do i = 1, ntotal/4 - 1
@@ -376,30 +349,21 @@ contains
              write (2,140) (output_1D(ii), ii=(i-1)*4+1,i*4 )
           enddo
           write (2,145) (output_1D(ii), ii=ntotal-3,ntotal)
-      else if(model_version.eq.3) then
+      else if(model_version.eq.3 .or.model_version.eq.4) then
           !=======================================================================
-          !     V meridional velocity (HOMME)
+          !     V meridional velocity (HOMME, CUBEDSPHERE)
           !=======================================================================
-          call concatenate_2DHOMME (v, output_1D, ntotal)
-          write (2,*) 'V = '
-          do i = 1, ntotal/4 - 1
-             write(2,140) (output_1D(ii), ii=(i-1)*4+1,i*4)
-          enddo
-          write (2,145) (output_1D(ii), ii=ntotal-3,ntotal)
-      else if(model_version.eq.4) then
-          !=======================================================================
-          !     V meridional velocity (CUBED SPHERE)
-          !=======================================================================
-          call concatenate_2DCUBEDSPHERE (v, output_1D, ntotal)
+          call concatenate_2D2 (v, output_1D, ntotal)
           write (2,*) 'V = '
           do i = 1, ntotal/4 - 1
              write(2,140) (output_1D(ii), ii=(i-1)*4+1,i*4)
           enddo
           write (2,145) (output_1D(ii), ii=ntotal-3,ntotal)
       endif
-!=======================================================================
-!     T temperature
-!=======================================================================
+      
+      !=======================================================================
+      !     T temperature
+      !=======================================================================
       if (model_version.eq.1 .or.model_version.eq.2) then
           call concatenate (t, nlat, output_1D, ntotal)
           write (2,*) 'T = '
@@ -407,26 +371,20 @@ contains
              write(2,140) (output_1D(ii), ii=(i-1)*4+1,i*4)
           enddo
           write (2,145) (output_1D(ii), ii=ntotal-3,ntotal)
-      else if(model_version.eq.3) then
-          call concatenate_2DHOMME (t, output_1D, ntotal)
-          write (2,*) 'T = '
-          do i = 1, ntotal/4 - 1
-             write(2,140) (output_1D(ii), ii=(i-1)*4+1,i*4)
-          enddo
-          write (2,145) (output_1D(ii), ii=ntotal-3,ntotal)
-      else if(model_version.eq.4) then
-          call concatenate_2DCUBEDSPHERE (t, output_1D, ntotal)
+      else if(model_version.eq.3 .or.model_version.eq.4) then
+          call concatenate_2D2 (t, output_1D, ntotal)
           write (2,*) 'T = '
           do i = 1, ntotal/4 - 1
              write(2,140) (output_1D(ii), ii=(i-1)*4+1,i*4)
           enddo
           write (2,145) (output_1D(ii), ii=ntotal-3,ntotal)
       endif
-!=======================================================================
-!     PHIS surface geopotential
-!=======================================================================
+      
+      !=======================================================================
+      !     PHIS surface geopotential
+      !=======================================================================
       if (model_version.eq.1 .or.model_version.eq.2) then
-          call concatenate_2D (phis, nlat, output_1D, nlayer)
+          call concatenate_2D1 (phis, nlat, output_1D, nlayer)
           write (2,*) 'PHIS = '
           do i = 1, nlayer/4 - 1
              write (2,150) (output_1D(ii), ii=(i-1)*4+1,i*4)
@@ -447,9 +405,10 @@ contains
           enddo
           write (2,180) (phis(ii,1), ii=nlayer,nlayer)
       endif
-!=======================================================================
-!     close file
-!=======================================================================
+      
+      !=======================================================================
+      !     close file
+      !=======================================================================
       write (2,'(''}'')')
       close (2)
 
@@ -499,7 +458,7 @@ contains
 !=======================================================================
 ! convert 2D fields into 1D output streams for EUL, SLD, & FV
 !=======================================================================
-  subroutine concatenate_2D (var, nlimit, output, n)
+  subroutine concatenate_2D1 (var, nlimit, output, n)
       use cam_grid, only: nlon
       implicit none
       integer nlimit, n
@@ -515,12 +474,12 @@ contains
              output(index) = var(i,j)
            enddo
       enddo
-   end subroutine concatenate_2D
+   end subroutine concatenate_2D1
 
 !=======================================================================
-! convert 2D fields into 1D output streams for HOMME
+! convert 2D fields into 1D output streams for HOMME, CUBEDSPHERE
 !=======================================================================
-  subroutine concatenate_2DHOMME (var, output, n)
+  subroutine concatenate_2D2 (var, output, n)
       use cam_grid, only: ncol, nlev
       implicit none
       integer n
@@ -536,28 +495,7 @@ contains
            output(index) = var(k,j,1)
         enddo
       enddo
-   end subroutine concatenate_2DHOMME
-
-!=======================================================================
-! convert 2D fields into 1D output streams for FV3
-!=======================================================================
-  subroutine concatenate_2DCUBEDSPHERE (var, output, n)
-      use cam_grid, only: ncol, nlev
-      implicit none
-      integer n
-      real*8 :: var (nlev,ncol,1), &
-                output (n)
-      integer index
-      integer j ,k
-
-      index = 0
-      do k = 1, nlev
-        do j = 1, ncol
-           index = index + 1
-           output(index) = var(k,j,1)
-        enddo
-      enddo
-   end subroutine concatenate_2DCUBEDSPHERE
+   end subroutine concatenate_2D2
 
 !-----------------------------------------------------------------------
 !    deallocate arrays
