@@ -30,4 +30,5 @@ initial.o:  cam_physical_constants.o homme_lat_lon.o cubedsphere_lat_lon.o cam_g
 
 #Clean
 clean:
+	@touch $(objects) $(mods) initial
 	rm $(objects) $(mods) initial
