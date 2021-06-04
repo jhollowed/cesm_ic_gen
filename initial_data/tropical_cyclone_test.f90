@@ -38,16 +38,18 @@ MODULE tropical_cyclone
 !          Email: kevin.a.reed@stonybrook.edu
 !
 !=======================================================================
-! use phyical constants
+
+!=======================================================================
+! use physical constants
 !=======================================================================
   use cam_physical_constants
 
-!=======================================================================
   IMPLICIT NONE
+
 !=======================================================================
 !    Physical constants
 !=======================================================================
-!
+
 !  REAL(8), PARAMETER ::               &
 !       a     = 6371220.0d0,           & ! Reference Earth's Radius (m)
 !       Rd    = 287.0d0,               & ! Ideal gas const dry air (J kg^-1 K^1)
@@ -61,7 +63,7 @@ MODULE tropical_cyclone
 !       kappa = 2.d0/7.d0,             & ! Ratio of Rd to cp
 !       omega = 7.29212d-5,            & ! Reference rotation rate of the Earth (s^-1)
 !       deg2rad  = pi/180.d0             ! Conversion factor of degrees to radians
-!
+
 !=======================================================================
 !    Test case parameters
 !=======================================================================
@@ -74,7 +76,7 @@ MODULE tropical_cyclone
        Ts0        = 302.15d0,   & ! Surface temperature (SST)
        p00        = 101500.d0,  & ! global mean surface pressure
        cen_lat    = 10.d0,      & ! Center latitude of initial vortex
-       cen_lon    = 180.d0,     & ! Center longitufe of initial vortex
+       cen_lon    = 180.d0,     & ! Center longitude of initial vortex
        zq1        = 3000.d0,    & ! Height 1 for q calculation
        zq2        = 8000.d0,    & ! Height 2 for q calculation
        exppr      = 1.5d0,      & ! Exponent for r dependence of p
@@ -83,10 +85,8 @@ MODULE tropical_cyclone
        qtrop      = 1.d-11,     & ! Tropopause specific humidity
        rfpi       = 1000000.d0, & ! Radius within which to use fixed-point iter.
        constTv    = 0.608d0,    & ! Constant for Virtual Temp Conversion
-!      deltaz     = 2.d-13,     & ! Small number to ensure convergence in FPI,
-!      does not converge in 60 iterations for L120
-       deltaz     = 2.d-12,     & ! Small number to ensure convergence in FPI
-       epsilon_t    = 1.d-25,     & ! Small number to aviod dividing by zero in wind calc
+       deltaz     = 2.d-13,     & ! Small number to ensure convergence in FPI
+       eps        = 1.d-25,     & ! Small number to aviod dividing by zero in wind calc
        exponent = Rd*gamma/g,   & ! exponent
        T0    = Ts0*(1.d0+constTv*q0),             & ! Surface temp
        Ttrop = T0 - gamma*ztrop,                  & ! Tropopause temp
@@ -97,8 +97,7 @@ CONTAINS
 !=======================================================================
 !    Evaluate the tropical cyclone initial conditions
 !=======================================================================
-  SUBROUTINE tropical_cyclone_test(lon,lat,p,z,zcoords,hyam,hybm,u,v,t,thetav,phis,ps,rho,q)
-!   BIND(c, name = "tropical_cyclone_test")
+  SUBROUTINE tropical_cyclone_test(hyam,hybm,lon,lat,p,z,zcoords,u,v,t,thetav,phis,ps,rho,q) 
 
     IMPLICIT NONE
 
@@ -108,16 +107,17 @@ CONTAINS
 
     REAL(8), INTENT(IN) ::     &
               lon,             &     ! Longitude (radians)
-              lat,             &     ! Latitude (radians)
-              hyam,            &     ! hybrid coefficient a
-              hybm                   ! hybrid coefficient b
+              lat                    ! Latitude (radians)
+
+    REAL(8), INTENT(IN) ::     &     ! coefficients for the eta vertical ccordinate system
+              hyam,            &     ! hybrid coefficient (a)
+              hybm                   ! hybrid coefficient (b)
 
     REAL(8), INTENT(INOUT) ::  &
               p,               &     ! Pressure (Pa)
               z                      ! Height (m)
 
-    INTEGER, INTENT(IN) :: zcoords   ! 2 if hybrid coefficients for p-based system are specified 
-                                     ! 1 if z coordinates are specified
+    INTEGER, INTENT(IN) :: zcoords   ! 1 if z coordinates are specified
                                      ! 0 if p coordinates are specified
 
     REAL(8), INTENT(OUT) ::    &
@@ -166,8 +166,12 @@ CONTAINS
        end if
  
     else
- 
-       if (zcoords .eq. 2) p = hyam*p0 + hybm*ps ! compute the pressure based on hybrid coefficients and ps
+
+      !------------------------------------------------
+      !   Compute the pressure for the hybrid vertical coordinate system
+      !------------------------------------------------
+       p = hyam*p0+hybm*ps
+
        height = (T0/gamma)*(1.d0-(p/ps)**exponent)
 
        ! If inside a certain distance of the center of the storm
@@ -180,8 +184,8 @@ CONTAINS
           20 continue
           n = n+1
           zn = zhere - fpiF(p,gr,zhere)/fpidFdz(gr,zhere)
-          if (n.gt.60) then
-              PRINT *,'FPI did not converge after 60 interations in q & T!!!'
+          if (n.gt.20) then
+              PRINT *,'FPI did not converge after 20 interations in q & T!!!'
           else if ( abs(zn-zhere)/abs(zn) > deltaz) then
               zhere = zn
               goto 20
@@ -196,7 +200,7 @@ CONTAINS
     d1 = sin(cen_lat*deg2rad)*cos(lat) - &
          cos(cen_lat*deg2rad)*sin(lat)*cos(lon-cen_lon*deg2rad)
     d2 = cos(cen_lat*deg2rad)*sin(lon-cen_lon*deg2rad)
-    d  = max(epsilon_t, sqrt(d1**2.d0 + d2**2.d0))
+    d  = max(eps, sqrt(d1**2.d0 + d2**2.d0))
     ufac = d1/d
     vfac = d2/d
     

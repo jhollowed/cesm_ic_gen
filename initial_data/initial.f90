@@ -14,7 +14,7 @@
       use dcmip_initial_conditions_test_123
       use dcmip_initial_conditions_test_4
       use baroclinic_wave
-!      use tc_initial_vortex
+      use tropical_cyclone
  
       implicit none
       
@@ -215,17 +215,17 @@
          !==========================================
          do k = 1, nlev
             do i = 1, ncol
-                call test4_baroclinic_wave (lperturb,dry,bigx,hyam(k),hybm(k),lon(i),lat(i),zdummy,zdummy,0,u(k,i,1), &
-                                            v(k,i,1),d3,t(k,i,1),phis(i,1),ps(i,1),d4,q(k,i,1),q1(k,i,1),q2(k,i,1))
+                call test4_baroclinic_wave (lperturb,dry,bigx,hyam(k),hybm(k),lon(i),lat(i),zdummy,&
+                                            zdummy,0,u(k,i,1),v(k,i,1),d3,t(k,i,1),phis(i,1),ps(i,1),&
+                                            d4,q(k,i,1),q1(k,i,1),q2(k,i,1))
             enddo
          enddo
 
       case (80)
          do k = 1, nlev
             do i = 1, ncol
-!               call tc_initial_vortex(hyam(k),hybm(k),lon(i),lat(i),dumin,0.d0,0, &
-!                    u(k,i,1),v(k,i,1),t(k,i,1), &
-!                    phis(i,1),ps(i,1),rho(k,i,1),q(k,i,1))
+               call tropical_cyclone_test(hyam(k),hybm(k),lon(i),lat(i),d1,d2,zcoords,u(k,i,1),v(k,i,1),&
+                                          t(k,i,1),d3,phis(i,1),ps(i,1),d4,q(k,i,1))
             enddo
          enddo
 
@@ -242,7 +242,8 @@
          do k = 1, nlev
             do i = 1, ncol
                 call mountain_Rossby (dry,hyam(k),hybm(k),lon(i),lat(i),u(k,i,1), &
-                                            v(k,i,1),d3,t(k,i,1),phis(i,1),ps(i,1),d4,q(k,i,1),q1(k,i,1),q2(k,i,1))
+                                      v(k,i,1),d3,t(k,i,1),phis(i,1),ps(i,1),d4,q(k,i,1),&
+                                      q1(k,i,1),q2(k,i,1))
             enddo
          enddo
 
@@ -250,8 +251,9 @@
          do k = 1, nlev
             p100 = 100.0*lev(k)
             do i = 1, ncol
-                call test1_advection_deformation (lon(i),lat(i),p100,d1,0,u(k,i,1),v(k,i,1),d3,t(k,i,1),phis(i,1), &
-                                                  ps(i,1),d4,q(k,i,1),q1(k,i,1),q2(k,i,1),q3(k,i,1),q4(k,i,1))
+                call test1_advection_deformation (lon(i),lat(i),p100,d1,0,u(k,i,1),v(k,i,1),d3,t(k,i,1),&
+                                                  phis(i,1), ps(i,1),d4,q(k,i,1),q1(k,i,1),q2(k,i,1),&
+                                                  q3(k,i,1),q4(k,i,1))
             enddo
          enddo
 

@@ -1,7 +1,7 @@
 
 #Defining Variables
 objects =  cam_physical_constants.o homme_lat_lon.o cubedsphere_lat_lon.o cam_grid.o cam_variables.o dcmip_initial_conditions_test_4.o dcmip_initial_conditions_test_123.o initial.o baroclinic_wave_test.o tropical_cyclone_test.o
-mods =  cam_physical_constants.mod homme_lat_lon.mod cubedsphere_lat_lon.mod cam_grid.mod cam_variables.mod dcmip_initial_conditions_test_4.mod dcmip_initial_conditions_test_123.mod initial.mod baroclinic_wave_test.mod tropical_cyclone_test.mod
+mods =  cam_physical_constants.mod homme_lat_lon.mod cubedsphere_lat_lon.mod cam_grid.mod cam_variables.mod dcmip_initial_conditions_test_4.mod dcmip_initial_conditions_test_123.mod initial.mod baroclinic_wave_test.mod tropical_cyclone_test.mod baroclinic_wave.mod tropical_cyclone.mod
 FC = gfortran
 
 #Makefile
