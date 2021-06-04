@@ -16,11 +16,16 @@ module cam_physical_constants
        !omega      = 2._r8*pi/(0.05*86164._r8), &! Small Earth's angular velocity 1/s
        pih        = pi*0.5_r8,     &! pi/2
        deg2rad    = pi/180._r8,    &
+       
        L          = 2.5e6_r8,      & ! latent heat of vaporization
        e0sat      = 610.78_r8,     & ! saturation vapor pressure at T_0C
        T_0C       = 273.16_r8,     & ! freezing point
        Rv         = 461.5_r8,      & ! gas constant for water vapor
        epsilon    = 0.622_r8,      & ! Rv/Rd -1
-       Mvap       = 0.608_r8         ! Ratio of molar mass dry air/water vapor
+       Mvap       = 0.608_r8,      & ! Ratio of molar mass dry air/water vapor
+       
+       ! originally from cam3_physical_constants.f90
+       Lvap       = 2.5e6_r8,      & ! Latent heat of vaporization of water
+       Rvap       = 461.5_r8         ! Gas constant for water vapor
 
 end module cam_physical_constants

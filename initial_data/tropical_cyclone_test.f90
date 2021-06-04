@@ -40,7 +40,7 @@ MODULE tropical_cyclone
 !=======================================================================
 ! use phyical constants
 !=======================================================================
-  use cam3_physical_constants
+  use cam_physical_constants
 
 !=======================================================================
   IMPLICIT NONE
@@ -86,7 +86,7 @@ MODULE tropical_cyclone
 !      deltaz     = 2.d-13,     & ! Small number to ensure convergence in FPI,
 !      does not converge in 60 iterations for L120
        deltaz     = 2.d-12,     & ! Small number to ensure convergence in FPI
-       epsilon    = 1.d-25,     & ! Small number to aviod dividing by zero in wind calc
+       epsilon_t    = 1.d-25,     & ! Small number to aviod dividing by zero in wind calc
        exponent = Rd*gamma/g,   & ! exponent
        T0    = Ts0*(1.d0+constTv*q0),             & ! Surface temp
        Ttrop = T0 - gamma*ztrop,                  & ! Tropopause temp
@@ -196,7 +196,7 @@ CONTAINS
     d1 = sin(cen_lat*deg2rad)*cos(lat) - &
          cos(cen_lat*deg2rad)*sin(lat)*cos(lon-cen_lon*deg2rad)
     d2 = cos(cen_lat*deg2rad)*sin(lon-cen_lon*deg2rad)
-    d  = max(epsilon, sqrt(d1**2.d0 + d2**2.d0))
+    d  = max(epsilon_t, sqrt(d1**2.d0 + d2**2.d0))
     ufac = d1/d
     vfac = d2/d
     
