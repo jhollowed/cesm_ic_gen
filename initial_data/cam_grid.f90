@@ -1537,6 +1537,7 @@ contains
       else if (model_version.eq.4) then
         write (*,*) 'select cubed-sphere grid (FV3 model)'
         write (*,*) '(1) C24 grid'
+        write (*,*) '(2) C192 grid'
         write (*,*) 'Choose resolution:'
         read  (*,*) horizontal_resolution
         select case (horizontal_resolution)
@@ -1545,6 +1546,11 @@ contains
           ne = 24
           cubedsphere_latitudes => cubedsphere_latitudes_C24
           cubedsphere_longitudes => cubedsphere_longitudes_C24
+        case (2)
+          ncol = 221184
+          ne = 192
+          cubedsphere_latitudes => cubedsphere_latitudes_C192
+          cubedsphere_longitudes => cubedsphere_longitudes_C192
         endselect
         write (cn,'(I0)') ne 
       
